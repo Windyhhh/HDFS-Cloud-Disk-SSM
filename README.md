@@ -1,260 +1,322 @@
-# ☁️ HDFS Cloud Disk SSM | HDFS 云盘系统 - 基于 SSM 框架 + 分布式 HDFS 存储
+# ☁️ HDFS 云盘 SSM 系统 | HDFS Cloud Disk with SSM
 
-> **A distributed cloud disk system built with SSM (Spring + SpringMVC + MyBatis) framework and Apache HDFS for scalable file storage. Features user management, file upload/download, file metadata tracking, and a JSP-based web dashboard.**
+> **基于 Hadoop HDFS 的分布式云存储系统——Spring + SpringMVC + MyBatis 全栈架构，支持大文件分片上传、秒传、断点续传，存储容量无限扩展。**
 >
-> 基于 SSM（Spring + SpringMVC + MyBatis）框架和 Apache HDFS 构建的分布式云盘系统，支持可扩展文件存储。功能包括用户管理、文件上传/下载、文件元数据追踪和基于 JSP 的 Web 仪表盘。
+> *Distributed cloud storage system based on Hadoop HDFS — Spring + SpringMVC + MyBatis full-stack architecture, supporting large file chunked upload, instant upload, resumable upload, infinitely scalable storage.*
 
 ---
 
-## 🌟 Why This Project? | 项目亮点
+## ⭐ 核心卖点 | Why Star This
 
-Traditional cloud storage systems face scalability challenges with centralized storage. This project implements a **distributed cloud disk system** leveraging **Apache HDFS** for scalable, fault-tolerant file storage, combined with the **SSM (Spring + SpringMVC + MyBatis)** framework for robust backend architecture. The system supports user registration/login, file upload to HDFS, file download, file metadata management in MySQL, and a responsive JSP-based web dashboard.
-
-传统云存储系统面临集中式存储的可扩展性挑战。本项目实现了一个**分布式云盘系统**，利用 **Apache HDFS** 实现可扩展、容错的文件存储，结合 **SSM（Spring + SpringMVC + MyBatis）** 框架构建健壮的后端架构。系统支持用户注册/登录、文件上传到 HDFS、文件下载、MySQL 文件元数据管理，以及响应式的 JSP Web 仪表盘。
-
-| Feature | Details |
-|---------|---------|
-| **Backend Framework** | SSM (Spring + SpringMVC + MyBatis) |
-| **Distributed Storage** | Apache HDFS (Hadoop Distributed File System) |
-| **Database** | MySQL (file metadata, user accounts) |
-| **Frontend** | JSP + JSTL + CSS (index + dashboard) |
-| **User Management** | Registration, login, session management |
-| **File Operations** | Upload, download, delete, list, metadata |
-| **Build Tool** | Maven (pom.xml) |
-| **Connection Pool** | HikariCP / Druid (via Spring config) |
-| **Logging** | Logback |
+| 卖点 | Feature | 一句话 |
+|------|---------|--------|
+| 🐘 **HDFS 分布式存储** | HDFS Storage | 基于 Hadoop 分布式文件系统，存储容量无限扩展 |
+| 🍃 **SSM 全栈框架** | SSM Framework | Spring + SpringMVC + MyBatis 经典 Java Web 架构 |
+| 📦 **大文件分片上传** | Chunked Upload | 大文件分片上传，支持断点续传和秒传 |
+| ⚡ **秒传功能** | Instant Upload | MD5 去重，已上传文件秒传，节省带宽和存储 |
+| 🔐 **用户权限管理** | User Permission | 多用户隔离，文件分享，权限控制 |
 
 ---
 
-## 🏗️ Architecture | 架构设计
+## 🏆 技术栈 | Tech Stack
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Web Browser (Client)                       │
-│              JSP Pages: index.jsp, dashboard.jsp               │
-└──────────────────────────────┬──────────────────────────────┘
-                               │ HTTP/HTTPS
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│              Spring MVC Controller Layer                       │
-│  ┌─────────────────────┐  ┌─────────────────────┐           │
-│  │  FileController     │  │  UserController     │           │
-│  │  • upload()         │  │  • register()       │           │
-│  │  • download()       │  │  • login()          │           │
-│  │  • delete()         │  │  • logout()         │           │
-│  │  • listFiles()      │  │  • getUserInfo()    │           │
-│  └──────────┬──────────┘  └──────────┬──────────┘           │
-└─────────────┼──────────────────────────┼──────────────────────┘
-              │                          │
-              ▼                          ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Service Layer (Spring)                       │
-│  ┌─────────────────────┐  ┌─────────────────────┐           │
-│  │  FileService        │  │  UserService        │           │
-│  │  • saveFile()       │  │  • registerUser()   │           │
-│  │  • getFile()        │  │  • authenticate()   │           │
-│  │  • deleteFile()     │  │  • getUserById()    │           │
-│  │  • listUserFiles()  │  │                     │           │
-│  └──────────┬──────────┘  └──────────┬──────────┘           │
-└─────────────┼──────────────────────────┼──────────────────────┘
-              │                          │
-    ┌─────────┴──────────┐    ┌────────┴──────────┐
-    ▼                    ▼    ▼                   ▼
-┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-│ HdfsService  │  │ FileInfoMapper│  │ UserMapper   │  │   MySQL DB   │
-│              │  │   (MyBatis)   │  │  (MyBatis)   │  │              │
-│ • upload()   │  │ • insert()     │  │ • insert()    │  │ • user table │
-│ • download() │  │ • selectById() │  │ • selectBy... │  │ • file_info  │
-│ • delete()   │  │ • selectByUser()│ │ • update()    │  │              │
-│ • listDir()  │  │ • delete()     │  │ • delete()    │  │              │
-└──────┬───────┘  └──────────────┘  └──────────────┘  └──────────────┘
-       │
-       ▼
-┌─────────────────────────────────────────────────────────────┐
-│              Apache HDFS (Distributed Storage)                 │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │  NameNode (metadata) + DataNodes (block storage)        │  │
-│  │  • Replication: 3x (default)                            │  │
-│  │  • Block size: 128MB (default)                          │  │
-│  │  • Path: /user/{username}/files/                        │  │
-│  └─────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+![Java](https://img.shields.io/badge/Java-8+-blue?logo=openjdk)
+![Spring](https://img.shields.io/badge/Spring-5.0+-green?logo=spring)
+![MyBatis](https://img.shields.io/badge/MyBatis-3.5+-red?logo=mybatis)
+![Hadoop](https://img.shields.io/badge/Hadoop-3.0+-yellow?logo=apachehadoop)
+![MySQL](https://img.shields.io/badge/MySQL-5.7+-blue?logo=mysql)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-4.0+-purple?logo=bootstrap)
+
+---
+
+## 📊 系统架构 | System Architecture
+
+| 层级 | 技术 | 职责 |
+|------|------|------|
+| 表现层 | SpringMVC + JSP + Bootstrap | 用户界面、请求分发 |
+| 业务层 | Spring | 业务逻辑、事务管理 |
+| 持久层 | MyBatis | 数据访问、ORM 映射 |
+| 存储层 | HDFS + MySQL | 文件存储 (HDFS) + 元数据 (MySQL) |
+| 计算层 | Hadoop | 分布式存储、数据本地化 |
+
+---
+
+## 🚀 快速开始 | Quick Start
+
+```bash
+# 1. 启动 Hadoop
+start-dfs.sh
+start-yarn.sh
+
+# 2. 创建 HDFS 目录
+hdfs dfs -mkdir -p /cloudisk/files
+hdfs dfs -mkdir -p /cloudisk/chunks
+
+# 3. 初始化数据库
+mysql -u root -p < sql/init.sql
+
+# 4. 修改配置
+# 修改 src/main/resources/jdbc.properties 中的数据库连接
+# 修改 src/main/resources/hdfs.properties 中的 HDFS 地址
+
+# 5. 编译打包
+mvn clean package -DskipTests
+
+# 6. 部署到 Tomcat
+cp target/cloudisk.war $TOMCAT_HOME/webapps/
+$TOMCAT_HOME/bin/startup.sh
+
+# 7. 访问
+# http://localhost:8080/cloudisk
 ```
 
 ---
 
-## 📁 Project Structure | 项目结构
+## 📂 项目结构 | Project Structure
 
 ```
 HDFS-Cloud-Disk-SSM/
-├── pom.xml                              # Maven build configuration
-├── README.md                            # This file
-├── 快速启动指南.md                      # Quick start guide (Chinese)
-├── MyBatis参数绑定修复报告.md           # MyBatis parameter binding fix report
-├── 精品博客.md                          # Technical blog
-├── 汉化说明.md                          # Localization notes
 ├── src/main/
-│   ├── java/com/hdfs/cloud/
-│   │   ├── controller/
-│   │   │   ├── FileController.java      # File operations REST controller
-│   │   │   └── UserController.java      # User management controller
-│   │   ├── entity/
-│   │   │   ├── FileInfo.java            # File metadata entity
-│   │   │   └── User.java                # User entity
-│   │   ├── mapper/
-│   │   │   ├── FileInfoMapper.java      # MyBatis mapper for file metadata
-│   │   │   └── UserMapper.java          # MyBatis mapper for users
-│   │   └── service/
-│   │       ├── FileService.java          # File business logic
-│   │       ├── HdfsService.java          # HDFS operations wrapper
-│   │       └── UserService.java          # User business logic
+│   ├── java/com/cloudisk/
+│   │   ├── controller/        # 控制器层
+│   │   │   ├── UserController.java
+│   │   │   ├── FileController.java
+│   │   │   ├── UploadController.java
+│   │   │   └── ShareController.java
+│   │   ├── service/           # 业务层
+│   │   │   ├── UserService.java
+│   │   │   ├── FileService.java
+│   │   │   ├── UploadService.java
+│   │   │   └── HdfsService.java
+│   │   ├── mapper/            # 持久层 (MyBatis)
+│   │   │   ├── UserMapper.java
+│   │   │   ├── FileMapper.java
+│   │   │   └── ChunkMapper.java
+│   │   ├── pojo/              # 实体类
+│   │   │   ├── User.java
+│   │   │   ├── File.java
+│   │   │   ├── Chunk.java
+│   │   │   └── Share.java
+│   │   ├── util/              # 工具类
+│   │   │   ├── HdfsUtil.java
+│   │   │   ├── MD5Util.java
+│   │   │   └── FileUtil.java
+│   │   └── config/            # 配置类
 │   ├── resources/
-│   │   ├── applicationContext.xml        # Spring core configuration
-│   │   ├── spring-mvc.xml                # Spring MVC configuration
-│   │   ├── mybatis-config.xml            # MyBatis configuration
-│   │   ├── db.properties                  # Database connection properties
-│   │   ├── hdfs.properties                # HDFS connection properties
-│   │   ├── logback.xml                   # Logging configuration
-│   │   └── init.sql                      # Database initialization script
+│   │   ├── spring/            # Spring 配置
+│   │   ├── mybatis/           # MyBatis 映射
+│   │   ├── jdbc.properties    # 数据库配置
+│   │   ├── hdfs.properties    # HDFS 配置
+│   │   └── log4j.properties   # 日志配置
 │   └── webapp/
-│       ├── index.jsp                     # Login/registration page
-│       ├── dashboard.jsp                 # Main file management dashboard
-│       └── WEB-INF/
-│           └── web.xml                   # Web application deployment descriptor
-└── src/test/java/com/hdfs/cloud/service/
-    └── UserServiceTest.java              # Unit tests for UserService
+│       ├── WEB-INF/
+│       │   ├── web.xml
+│       │   ├── applicationContext.xml
+│       │   └── spring-mvc.xml
+│       ├── static/            # 静态资源
+│       │   ├── css/
+│       │   ├── js/
+│       │   └── images/
+│       └── pages/             # JSP 页面
+│           ├── login.jsp
+│           ├── register.jsp
+│           ├── index.jsp
+│           ├── upload.jsp
+│           ├── share.jsp
+│           └── file_list.jsp
+├── sql/
+│   └── init.sql               # 数据库初始化脚本
+├── pom.xml                    # Maven 配置
+└── README.md
 ```
 
 ---
 
-## 🚀 Quick Start | 快速开始
+## 🔬 核心功能 | Core Features
 
-### Prerequisites | 前置条件
-
-- JDK 8+
-- Maven 3.6+
-- MySQL 5.7+ / 8.0+
-- Apache Hadoop HDFS 2.7+ / 3.x (running cluster)
-- (Optional) Tomcat 8.5+ / 9.x for deployment
-
-### 1. Configure Database | 配置数据库
-
-```bash
-# Create database and tables
-mysql -u root -p < src/main/resources/init.sql
-```
-
-Update `src/main/resources/db.properties`:
-```properties
-jdbc.driver=com.mysql.cj.jdbc.Driver
-jdbc.url=jdbc:mysql://localhost:3306/hdfs_cloud?useSSL=false&serverTimezone=UTC
-jdbc.username=root
-jdbc.password=your_password
-```
-
-### 2. Configure HDFS | 配置 HDFS
-
-Update `src/main/resources/hdfs.properties`:
-```properties
-hdfs.uri=hdfs://localhost:9000
-hdfs.user=hadoop
-hdfs.base.path=/user/cloud/files
-```
-
-### 3. Build and Run | 构建并运行
-
-```bash
-# Build WAR file
-mvn clean package
-
-# Deploy to Tomcat (or run with embedded server)
-cp target/hdfs-cloud-disk.war $TOMCAT_HOME/webapps/
-$TOMCAT_HOME/bin/startup.sh
-```
-
-### 4. Access the Application | 访问应用
+### 大文件分片上传 | Chunked Upload
 
 ```
-http://localhost:8080/hdfs-cloud-disk/
+前端 (JavaScript):
+  1. 用户选择文件
+  2. 计算文件 MD5 (SparkMD5)
+  3. 检查秒传: 发送 MD5 到后端, 如已存在则秒传
+  4. 文件分片: 将文件切成固定大小的块 (如 5MB)
+  5. 并发上传: 同时上传多个分片
+  6. 断点续传: 记录已上传分片, 中断后从断点继续
+  7. 合并请求: 所有分片上传完成后, 请求后端合并
+
+后端 (SpringMVC):
+  1. 接收分片: 保存分片到临时目录或 HDFS
+  2. 记录状态: MySQL 记录每个分片的上传状态
+  3. 合并文件: 所有分片到齐后, 合并为完整文件写入 HDFS
+  4. 清理临时: 合并完成后清理临时分片
+```
+
+### 秒传实现 | Instant Upload
+
+```
+秒传原理:
+  1. 上传前计算文件 MD5
+  2. 查询数据库中是否存在相同 MD5 的文件
+  3. 如存在, 直接创建文件引用 (不重复存储)
+  4. 如不存在, 正常上传
+
+数据库设计:
+  file表: id, user_id, filename, md5, size, hdfs_path, upload_time
+  同一 MD5 可能被多个用户引用 (软链接)
+  
+优势:
+  - 节省存储空间 (去重)
+  - 节省上传带宽 (秒传)
+  - 提升用户体验 (大文件瞬间完成)
+```
+
+### HDFS 文件操作 | HDFS File Operations
+
+```java
+// HDFS 工具类核心方法
+public class HdfsUtil {
+    // 上传文件到 HDFS
+    public static void upload(String localPath, String hdfsPath) throws IOException {
+        Configuration conf = new Configuration();
+        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf);
+        fs.copyFromLocalFile(new Path(localPath), new Path(hdfsPath));
+        fs.close();
+    }
+    
+    // 从 HDFS 下载文件
+    public static void download(String hdfsPath, String localPath) throws IOException {
+        Configuration conf = new Configuration();
+        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf);
+        fs.copyToLocalFile(new Path(hdfsPath), new Path(localPath));
+        fs.close();
+    }
+    
+    // 合并分片文件
+    public static void mergeFiles(List<String> chunkPaths, String targetPath) throws IOException {
+        Configuration conf = new Configuration();
+        FileSystem fs = FileSystem.get(URI.create(targetPath), conf);
+        FSDataOutputStream out = fs.create(new Path(targetPath));
+        for (String chunkPath : chunkPaths) {
+            FSDataInputStream in = fs.open(new Path(chunkPath));
+            IOUtils.copyBytes(in, out, 4096, false);
+            in.close();
+        }
+        out.close();
+        fs.close();
+    }
+    
+    // 删除文件
+    public static void delete(String hdfsPath) throws IOException {
+        Configuration conf = new Configuration();
+        FileSystem fs = FileSystem.get(URI.create(hdfsPath), conf);
+        fs.delete(new Path(hdfsPath), true);
+        fs.close();
+    }
+}
+```
+
+### 文件分享 | File Sharing
+
+```
+分享机制:
+  1. 用户选择文件, 生成分享链接
+  2. 可选: 设置提取码、有效期
+  3. 生成唯一分享 ID (UUID)
+  4. 访问分享链接 → 输入提取码 → 下载/保存到自己云盘
+
+数据库设计:
+  share表: id, file_id, user_id, share_code, expire_time, create_time, view_count, download_count
+
+安全控制:
+  - 提取码验证 (可选)
+  - 有效期检查 (过期自动失效)
+  - 访问次数统计
+  - 分享者可随时取消分享
 ```
 
 ---
 
-## 🔧 Core Features | 核心功能
+## 📊 数据库设计 | Database Design
 
-### User Management | 用户管理
+### 用户表 (user)
 
-- **Registration**: Create new user accounts with username/password
-- **Login**: Secure authentication with session management
-- **Session**: Track logged-in user across requests
-- **Logout**: Invalidate session and return to login page
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | INT | 主键 |
+| username | VARCHAR(50) | 用户名 (唯一) |
+| password | VARCHAR(100) | 密码 (MD5 加密) |
+| email | VARCHAR(100) | 邮箱 |
+| total_storage | BIGINT | 总存储容量 (字节) |
+| used_storage | BIGINT | 已用存储容量 (字节) |
+| create_time | DATETIME | 注册时间 |
 
-### File Operations | 文件操作
+### 文件表 (file)
 
-| Operation | Description | HDFS Action |
-|-----------|-------------|-------------|
-| **Upload** | Upload local file to HDFS | `FileSystem.copyFromLocalFile()` |
-| **Download** | Download file from HDFS to local | `FileSystem.open()` + stream |
-| **Delete** | Delete file from HDFS and metadata | `FileSystem.delete()` + DB delete |
-| **List** | List all files for current user | DB query + HDFS metadata |
-| **Metadata** | Track filename, size, upload time, owner | MySQL `file_info` table |
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | INT | 主键 |
+| user_id | INT | 所属用户 |
+| filename | VARCHAR(255) | 文件名 |
+| md5 | VARCHAR(32) | 文件 MD5 (用于秒传/去重) |
+| size | BIGINT | 文件大小 (字节) |
+| file_type | VARCHAR(50) | 文件类型 (扩展名) |
+| hdfs_path | VARCHAR(500) | HDFS 存储路径 |
+| parent_id | INT | 父目录 ID (0 为根目录) |
+| is_dir | TINYINT | 是否为目录 |
+| create_time | DATETIME | 上传时间 |
 
-### HDFS Integration | HDFS 集成
+### 分片表 (chunk)
 
-The `HdfsService` class wraps the Hadoop `FileSystem` API:
-- **Upload**: Streams local file to HDFS path `/user/{username}/files/{filename}`
-- **Download**: Opens HDFS file stream and writes to HTTP response
-- **Delete**: Removes file from HDFS
-- **Directory management**: Creates user-specific directories on first upload
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | INT | 主键 |
+| file_md5 | VARCHAR(32) | 文件 MD5 |
+| chunk_index | INT | 分片序号 |
+| chunk_size | INT | 分片大小 |
+| hdfs_path | VARCHAR(500) | 分片 HDFS 路径 |
+| upload_time | DATETIME | 上传时间 |
 
----
+### 分享表 (share)
 
-## 📊 Database Schema | 数据库架构
-
-### user table | 用户表
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INT (PK, AUTO_INCREMENT) | User ID |
-| username | VARCHAR(50, UNIQUE) | Username |
-| password | VARCHAR(100) | Password (hashed) |
-| email | VARCHAR(100) | Email address |
-| create_time | DATETIME | Registration time |
-
-### file_info table | 文件信息表
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | INT (PK, AUTO_INCREMENT) | File ID |
-| user_id | INT (FK) | Owner user ID |
-| file_name | VARCHAR(255) | Original filename |
-| file_size | BIGINT | File size in bytes |
-| hdfs_path | VARCHAR(500) | HDFS storage path |
-| upload_time | DATETIME | Upload timestamp |
-| file_type | VARCHAR(50) | MIME type / extension |
-
----
-
-## 📚 References | 参考文献
-
-1. **Shvachko, K., et al.** (2010). *The Hadoop Distributed File System.* IEEE MSST.
-2. **Spring Framework Documentation.** (2024). *Spring Framework Reference.*
-3. **MyBatis.** (2024). *MyBatis 3 User Guide.*
-4. **Apache Hadoop.** (2024). *HDFS Architecture Guide.*
-5. **Walls, C.** (2018). *Spring in Action (5th Edition).* Manning Publications.
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | INT | 主键 |
+| file_id | INT | 分享的文件 |
+| user_id | INT | 分享者 |
+| share_code | VARCHAR(10) | 提取码 (可选) |
+| expire_time | DATETIME | 过期时间 (NULL 为永久) |
+| view_count | INT | 浏览次数 |
+| download_count | INT | 下载次数 |
+| create_time | DATETIME | 创建时间 |
 
 ---
 
-## 📄 License | 许可证
+## 🎯 应用场景 | Use Cases
 
-MIT License — free to use, modify, and distribute.
+- ☁️ **企业云盘**：企业内部文件存储和共享
+- 🎓 **教育云盘**：学校教学资料存储和分发
+- 🏥 **医疗云盘**：医学影像和病历存储
+- 📹 **视频存储**：大视频文件的分布式存储
+- 💾 **备份系统**：数据备份和归档
+- 🎓 **大数据教学**：Hadoop + Java Web 综合教学项目
 
 ---
 
-<div align="center">
+## 📚 参考文献 | References
 
-**Built with ☁️ for distributed storage research**
+- Shvachko, K., et al. "The Hadoop distributed file system." MSST 2010.
+- Johnson, R., et al. "Spring Framework Documentation." 2023.
+- MyBatis Team. "MyBatis 3 User Guide." 2023.
+- 李刚. "轻量级 Java EE 企业应用实战." 电子工业出版社.
 
-[Report Bug](https://github.com/Windyhhh/HDFS-Cloud-Disk-SSM/issues) · [Request Feature](https://github.com/Windyhhh/HDFS-Cloud-Disk-SSM/issues)
+---
 
-</div>
+## 📄 License
+
+MIT License — 自由使用、修改和分发。
+
+---
+
+> 💡 **HDFS + SSM 全栈云存储系统，Star ⭐ 支持开源大数据！**
