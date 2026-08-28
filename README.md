@@ -2,23 +2,33 @@
 
 # ☁️ HDFS-Cloud-Disk-SSM
 
-### A distributed cloud disk on HDFS, built with SSM.
+### A cloud-disk system on SSM + HDFS distributed storage.
 
-Spring + SpringMVC + MyBatis (SSM) cloud disk on HDFS — user management, file upload/download, JSP views.
+User management, file upload/download, file management and permission control with multi-user isolation.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Java](https://img.shields.io/badge/Java-8+-007396?logo=openjdk&logoColor=white)](https://openjdk.org/)
-[![Spring](https://img.shields.io/badge/SSM-Spring_%2B_MVC_%2B_MyBatis-6DB33F?logo=spring&logoColor=white)](https://spring.io/)
-[![HDFS](https://img.shields.io/badge/HDFS-3-66CCFF?logo=apachehadoop&logoColor=black)](https://hadoop.apache.org/)
+[![Java](https://img.shields.io/badge/Java-8-007396?logo=java&logoColor=white)](https://www.java.com/)
+[![SSM](https://img.shields.io/badge/SSM-Spring%20MVC-6DB33F?logo=spring&logoColor=white)](https://spring.io/)
+[![HDFS](https://img.shields.io/badge/HDFS-3-66CCFF?logo=apachehadoop&logoColor=white)](https://hadoop.apache.org/)
 
 </div>
 
 ---
 
-**HDFS-Cloud-Disk-SSM** is a distributed cloud disk backed by **HDFS**, built with the **SSM** stack (Spring + SpringMVC + MyBatis). It provides user management and file upload/download through JSP views.
+**HDFS-Cloud-Disk-SSM** is a cloud-disk (network drive) system built on the **SSM** framework (Spring + SpringMVC + MyBatis) and **HDFS** distributed storage. It provides user management, file upload / download, file management and permission control with multi-user data isolation.
 
 > [!NOTE]
-> 中文项目：SSM（Spring + SpringMVC + MyBatis）+ HDFS 分布式云盘系统——用户管理、文件上传下载、JSP 看板。
+> 中文项目：基于 SSM 框架 + HDFS 分布式存储的云盘系统——用户管理、文件上传下载、权限控制、多用户数据隔离。
+
+---
+
+## Features
+
+- **SSM enterprise stack** — clean, maintainable, extensible architecture.
+- **HDFS storage** — high reliability, scalability and throughput.
+- **Full file operations** — upload / download / manage / share.
+- **Permission control** — role-based access + multi-user isolation.
+- **Full-stack** — ready to deploy.
 
 ---
 
@@ -28,22 +38,10 @@ Spring + SpringMVC + MyBatis (SSM) cloud disk on HDFS — user management, file 
 git clone https://github.com/Windyhhh/HDFS-Cloud-Disk-SSM.git
 cd HDFS-Cloud-Disk-SSM
 
-# Configure HDFS & DB in resources
-#   resources/hdfs.properties, db.properties, init.sql
-
+# configure HDFS + MySQL in application config
 mvn clean package
-# Deploy the WAR to Tomcat
+# deploy the WAR to Tomcat
 ```
-
-See `快速启动指南.md` for details.
-
----
-
-## Features
-
-- **HDFS storage** — distributed file backend via `HdfsService`.
-- **SSM stack** — controller / service / mapper layered architecture.
-- **User & file flows** — auth, dashboard, upload / download.
 
 ---
 
@@ -51,13 +49,9 @@ See `快速启动指南.md` for details.
 
 ```
 HDFS-Cloud-Disk-SSM/
-├── main/java/com/hdfs/cloud/
-│   ├── controller/       # FileController, UserController
-│   ├── service/          # FileService, HdfsService, UserService
-│   ├── mapper/           # FileInfoMapper, UserMapper
-│   └── entity/           # FileInfo, User
-├── main/resources/       # spring-mvc.xml, mybatis-config.xml, hdfs.properties, init.sql
-├── main/webapp/          # dashboard.jsp, index.jsp
+├── src/main/java/          # controllers, services, mappers
+├── src/main/resources/     # mybatis, spring config
+├── src/main/webapp/        # frontend
 └── pom.xml
 ```
 
