@@ -1,6 +1,6 @@
 <div align="center">
 
-# ☁️ HDFS-Cloud-Disk-SSM
+# HDFS 分布式云盘 | HDFS-Cloud-Disk-SSM
 
 ### A cloud-disk system on SSM + HDFS distributed storage.
 
